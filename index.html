@@ -1,0 +1,449 @@
+<!doctype html>
+<html lang="en" data-edits="on">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lavanya Chaudhary · AI and ML</title>
+<meta name="description" content="Lavanya Chaudhary builds machine learning that can explain itself: LLMs, RAG, explainable AI and real-time ML. Integrated BE + ME in Computer Science, Chandigarh University, 2027. Open to AI and ML roles.">
+<meta name="theme-color" content="#F3F4F1">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%23F3F4F1'/><rect x='6' y='9' width='20' height='2.4' fill='%23C8361F'/><rect x='6' y='15' width='14' height='2' fill='%2317181C'/><rect x='6' y='21' width='17' height='2' fill='%2317181C'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="scrollcraft.css">
+<style>
+  :root {
+    --sc-canvas:     #F3F4F1;
+    --sc-surface:    #FCFCFA;
+    --sc-ink:        #16171B;
+    --sc-ink-soft:   #52555D;
+    --sc-accent:     #C8361F;
+    --sc-accent-ink: #FFFFFF;
+    --sc-font-display: "IBM Plex Sans", system-ui, sans-serif;
+    --sc-font-text:    "IBM Plex Sans", system-ui, sans-serif;
+    --sc-font-mono:    "IBM Plex Mono", ui-monospace, monospace;
+    --sc-shadow-color: 210 10% 30%;
+    --sc-r-md: 2px;
+    --margin: clamp(4.5rem, 7vw, 6.5rem);
+    --desk: #E3E5E1;
+  }
+  body { font-size: clamp(1rem, 0.96rem + 0.2vw, 1.12rem); }
+  h1, h2, h3, p, ol, ul, dl, dd, figure { margin: 0; }
+  .sc-display { font-weight: 600; letter-spacing: -0.03em; }
+  .label { font: 500 0.72rem/1.3 var(--sc-font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--sc-ink-soft); }
+  .col { margin-left: var(--margin); padding-inline: var(--sc-gutter); max-width: 74rem; }
+
+  /* ---- the signature: base output struck, tuned output written in -------- */
+  .rl { --rl: 0; }
+  .rl del {
+    text-decoration: none; color: var(--sc-ink-soft);
+    /* shortcut: background-size is repainted per frame, fine for seven short lines; move to a transform if more are added */
+    background: linear-gradient(var(--sc-accent), var(--sc-accent)) no-repeat 0 58% / calc(clamp(0, var(--rl) * 1.9, 1) * 100%) 0.08em;
+  }
+  .rl ins {
+    text-decoration: none; opacity: clamp(0, (var(--rl) - 0.45) * 2.6, 1);
+    background: linear-gradient(var(--sc-accent), var(--sc-accent)) no-repeat 0 96% / calc(clamp(0, (var(--rl) - 0.55) * 2.4, 1) * 100%) 0.06em;
+  }
+  [data-edits="off"] .rl del, [data-edits="off"] .balloon { display: none; }
+  [data-edits="off"] .rl ins { opacity: 1; background: none; }
+
+  .balloon {
+    font: 400 0.8rem/1.45 var(--sc-font-mono); color: var(--sc-ink);
+    background: var(--sc-surface); border: 1px solid var(--sc-accent); border-radius: 2px;
+    padding: 0.7rem 0.85rem; max-width: 16rem; box-shadow: var(--sc-e1);
+  }
+  .balloon b { display: block; font-weight: 500; color: var(--sc-accent); margin-bottom: 0.2rem; }
+
+  /* ---- folio: the margin is the navigation -------------------------------- */
+  .folio {
+    position: fixed; z-index: var(--sc-z-chrome); left: 0; top: 0; bottom: 0; width: var(--margin);
+    display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+    padding: 1.6rem 0; color: #fff; mix-blend-mode: difference; pointer-events: none;
+  }
+  .folio > * { pointer-events: auto; }
+  .folio__num { font: 500 0.95rem/1 var(--sc-font-mono); }
+  .folio__title { writing-mode: vertical-rl; rotate: 180deg; font: 500 0.72rem/1 var(--sc-font-mono); letter-spacing: 0.12em; text-transform: uppercase; }
+  .switch {
+    all: unset; pointer-events: auto; cursor: pointer; display: grid; justify-items: center; gap: 0.45rem;
+    font: 500 0.62rem/1 var(--sc-font-mono); letter-spacing: 0.1em; text-transform: uppercase; padding: 0.35rem;
+  }
+  .switch:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+  .switch__track { width: 28px; height: 16px; border: 1px solid currentColor; border-radius: 8px; position: relative; }
+  .switch__track::after { content: ""; position: absolute; top: 2px; left: 2px; width: 10px; height: 10px; border-radius: 50%; background: currentColor; transition: transform 160ms var(--sc-ease-out); }
+  .switch[aria-pressed="true"] .switch__track::after { transform: translateX(12px); }
+  .switch:active .switch__track { transform: scale(0.95); }
+
+  /* ---- §1 model card on a stack of checkpoints ---------------------------- */
+  .ch { position: relative; }
+  .ch--desk { background: var(--desk); }
+  .desk { overflow: clip; }
+  .sheet { position: absolute; left: calc(var(--margin) + var(--sc-gutter)); top: clamp(4.5rem, 12vh, 8rem); width: min(52rem, calc(100vw - var(--margin) - 2 * var(--sc-gutter))); }
+  .sheet__in { position: relative; background: var(--sc-surface); box-shadow: var(--sc-e2), var(--sc-edge); border-radius: 2px; }
+  .sheet--d2 .sheet__in, .sheet--d1 .sheet__in {
+    height: 78svh; background-color: #F7F8F5;
+    background-image: repeating-linear-gradient(to bottom, transparent 0 34px, rgb(22 23 27 / 0.07) 34px 41px);
+    background-position: 0 120px; background-size: 82% 100%; background-repeat: no-repeat; background-origin: content-box; padding: 3rem;
+  }
+  .sheet--d2 .sheet__in { rotate: -4.5deg; translate: -1.5rem 1.2rem; }
+  .sheet--d1 .sheet__in { rotate: 2.2deg; translate: 2.2rem -0.4rem; }
+  .ckpt { position: absolute; right: 2rem; bottom: 1.6rem; font: 500 0.72rem/1 var(--sc-font-mono); letter-spacing: 0.08em; color: var(--sc-ink-soft); }
+  .strike { position: absolute; height: 3px; background: rgb(200 54 31 / 0.55); border-radius: 2px; }
+  .sheet--front .sheet__in { padding: clamp(1.75rem, 4vw, 3.5rem); box-shadow: var(--sc-e3), var(--sc-edge); }
+  .front h1 { font-size: clamp(3rem, 1.5rem + 5.4vw, 6.6rem); line-height: 0.96; letter-spacing: -0.04em; margin-top: 1.4rem; }
+  .front .sub { font-size: clamp(1.25rem, 1rem + 1vw, 1.8rem); line-height: 1.3; margin-top: 1.2rem; text-wrap: pretty; max-width: 32ch; letter-spacing: -0.01em; }
+  .front .abstract { margin-top: 1.8rem; padding-top: 1.2rem; border-top: 1px solid var(--sc-hairline); max-width: 60ch; color: var(--sc-ink-soft); font-size: 0.98rem; line-height: 1.6; }
+  .front .abstract b { color: var(--sc-ink); font-weight: 600; }
+  .balloon--hero { position: absolute; right: max(var(--sc-gutter), calc(100vw - var(--margin) - var(--sc-gutter) - 52rem - 18rem)); top: 42%; }
+
+  /* ---- §2 capabilities ------------------------------------------------------ */
+  .paper { background: var(--sc-canvas); }
+  .ch--methods { padding-block: clamp(3.5rem, 7vw, 6rem) var(--sc-section); }
+  .opener { font: 600 clamp(1.7rem, 1.1rem + 2.5vw, 3.2rem)/1.12 var(--sc-font-display); letter-spacing: -0.03em; max-width: 22ch; text-wrap: pretty; margin-top: 1rem; }
+  .methods { display: grid; grid-template-columns: minmax(10rem, 15rem) 1fr; margin-top: clamp(2.5rem, 5vw, 4rem); border-top: 1px solid var(--sc-ink); max-width: 64rem; }
+  .methods dt, .methods dd { padding: 1rem 0; border-bottom: 1px solid var(--sc-hairline-strong); }
+  .methods dt { font: 500 0.78rem/1.6 var(--sc-font-mono); letter-spacing: 0.06em; text-transform: uppercase; padding-right: 1.5rem; }
+  .methods dd { line-height: 1.55; }
+  .methods .lead { color: var(--sc-ink); font-weight: 600; }
+
+  /* ---- §3 builds: the rail of figure plates --------------------------------- */
+  .ch--lab { background: #E7E9E5; }
+  /* plates stop at the page margin, so they never run under the folio */
+  .lab-stage { clip-path: inset(0 0 0 var(--margin)); }
+  .rail { height: 100%; align-items: center; gap: clamp(1.5rem, 3vw, 3rem); padding-left: calc(var(--margin) + var(--sc-gutter)); padding-right: var(--sc-gutter); }
+  .rail > * { flex: none; }
+  .rail__head { width: clamp(19rem, 34vw, 30rem); }
+  .rail__head .opener { font-size: clamp(1.6rem, 1.1rem + 2vw, 2.7rem); }
+  .rail__note { width: clamp(17rem, 26vw, 23rem); font-size: 1.1rem; line-height: 1.5; color: var(--sc-ink-soft); }
+  .plate { width: clamp(17.5rem, 30vw, 27rem); background: var(--sc-surface); box-shadow: var(--sc-e2), var(--sc-edge); border-radius: 2px; padding: 1.1rem 1.1rem 1.3rem; }
+  .plate svg { width: 100%; height: auto; color: var(--sc-ink); background: #F3F4F0; border-radius: 1px; }
+  .plate svg .acc { stroke: var(--sc-accent); }
+  .plate svg .accf { fill: var(--sc-accent); }
+  .plate figcaption { margin-top: 1rem; display: grid; gap: 0.35rem; }
+  .plate h3 { font: 600 1.15rem/1.25 var(--sc-font-display); letter-spacing: -0.01em; }
+  .plate p { font-size: 0.95rem; line-height: 1.5; color: var(--sc-ink-soft); }
+  .plate--ml .label { color: var(--sc-accent); }
+
+  /* ---- §4 output: the peak, on ink ------------------------------------------ */
+  .ch--ink { --sc-canvas: #131418; --sc-surface: #1C1E24; --sc-ink: #EDEEEA; --sc-ink-soft: #A8ABB3; --sc-accent: #FF745D;
+             --sc-hairline-strong: rgb(237 238 234 / 0.22); background: var(--sc-canvas); color: var(--sc-ink); }
+  .pub { display: flex; align-items: center; }
+  .pub__in { width: 100%; }
+  .pub__hush { position: absolute; left: 50%; top: 50%; translate: -50% -50%; font: 400 1.05rem/1.3 var(--sc-font-mono); color: var(--sc-ink-soft); white-space: nowrap; }
+  .prompt { font: 400 clamp(0.9rem, 0.85rem + 0.3vw, 1.1rem)/1.4 var(--sc-font-mono); color: var(--sc-ink-soft); margin-bottom: 1.2rem; }
+  .prompt span { color: var(--sc-accent); }
+  .pub__title { font: 600 clamp(3.2rem, 1.2rem + 7.4vw, 8.6rem)/0.94 var(--sc-font-display); letter-spacing: -0.045em; }
+  .pub__title del { background-size: calc(clamp(0, var(--rl) * 1.9, 1) * 100%) 0.07em; }
+  .pub__sub { margin-top: 1.3rem; font-size: clamp(1.05rem, 1rem + 0.4vw, 1.3rem); color: var(--sc-ink-soft); max-width: 48ch; }
+  .papers { list-style: none; padding: 0; margin-top: clamp(1.4rem, 3.6vh, 2.6rem); display: grid; gap: clamp(0.8rem, 2vh, 1.3rem); max-width: 62rem; }
+  .papers li { display: grid; grid-template-columns: 11rem 1fr; gap: 1rem; font-size: clamp(1rem, 0.95rem + 0.35vw, 1.22rem); line-height: 1.35; padding-top: clamp(0.8rem, 2vh, 1.3rem); border-top: 1px solid var(--sc-hairline-strong); }
+  .papers .label { color: var(--sc-accent); line-height: 1.9; }
+  .balloon--pub { position: absolute; right: var(--sc-gutter); top: clamp(5rem, 16vh, 9rem); }
+
+  /* ---- §5 training data ----------------------------------------------------- */
+  .results { display: grid; grid-template-columns: minmax(8rem, 12rem) 1fr; max-width: 64rem; margin-top: clamp(2.5rem, 5vw, 4rem); border-top: 1px solid var(--sc-ink); }
+  .results dt, .results dd { padding: 1rem 0; border-bottom: 1px solid var(--sc-hairline-strong); }
+  .results dt { font: 500 0.78rem/1.6 var(--sc-font-mono); letter-spacing: 0.06em; text-transform: uppercase; }
+  .results dd { line-height: 1.55; }
+
+  /* ---- §6 roadmap: planning grid --------------------------------------------- */
+  .ch--grid { background-color: #EDF0EC; background-image: linear-gradient(rgb(22 23 27 / 0.06) 1px, transparent 1px), linear-gradient(90deg, rgb(22 23 27 / 0.06) 1px, transparent 1px); background-size: 28px 28px; }
+  .future { display: flex; align-items: center; }
+  .future__in { width: 100%; }
+  .future .opener { font-size: clamp(1.7rem, 1.1rem + 2.4vw, 3.1rem); }
+  .proposals { list-style: none; padding: 0; margin-top: clamp(1.4rem, 4vh, 2.6rem); max-width: 64rem; border-top: 1px solid var(--sc-ink); }
+  .proposals li { display: grid; grid-template-columns: 13rem 1fr 6rem; gap: 0.4rem 1.5rem; align-items: start; padding: clamp(0.9rem, 2.4vh, 1.4rem) 0; border-bottom: 1px solid var(--sc-hairline-strong); background: color-mix(in oklab, var(--sc-canvas) 85%, transparent); }
+  .proposals h3 { font: 600 clamp(1.1rem, 1rem + 0.5vw, 1.4rem)/1.2 var(--sc-font-display); letter-spacing: -0.01em; }
+  .proposals li p:not(.label):not(.status) { color: var(--sc-ink-soft); line-height: 1.5; margin: 0.3rem 0 0.4rem; max-width: 52ch; }
+  .status { justify-self: end; font: 500 0.7rem/1 var(--sc-font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--sc-accent); border: 1px solid var(--sc-accent); border-radius: 2px; padding: 0.35rem 0.45rem; }
+
+  /* ---- §7 contact: the close ------------------------------------------------- */
+  .ch--colophon { min-height: 100svh; background: var(--desk); display: flex; align-items: flex-end; padding-block: var(--sc-section) clamp(2.5rem, 6vh, 4rem); }
+  .closing { font: 600 clamp(2.3rem, 1.3rem + 4.2vw, 5.2rem)/1.04 var(--sc-font-display); letter-spacing: -0.04em; max-width: 16ch; }
+  .closing a { color: inherit; text-decoration: none; }
+  .closing a:focus-visible { outline-offset: 6px; }
+  @media (hover: hover) and (pointer: fine) { .closing a:hover { color: var(--sc-accent); } }
+  .colophon { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.5rem 2.5rem; margin-top: clamp(2.5rem, 7vh, 4.5rem); padding-top: 1.4rem; border-top: 1px solid var(--sc-ink); font-size: 0.92rem; line-height: 1.55; color: var(--sc-ink-soft); }
+  .colophon h3 { font: 500 0.72rem/1.4 var(--sc-font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--sc-ink); margin-bottom: 0.4rem; }
+  .colophon a { color: var(--sc-ink); text-decoration-color: var(--sc-accent); }
+
+  @media (max-width: 860px) {
+    :root { --margin: 0rem; }
+    /* on a phone the folio floats over text, so it gets its own surface instead of blending */
+    .folio { top: auto; bottom: 0.75rem; left: var(--sc-gutter); width: auto; height: auto; flex-direction: row; gap: 0.9rem; padding: 0.35rem 0.4rem 0.35rem 0.75rem;
+             mix-blend-mode: normal; color: #16171B; background: #FCFCFA; border: 1px solid rgb(22 23 27 / 0.18); border-radius: 2px; box-shadow: var(--sc-e1); }
+    .folio__title { writing-mode: horizontal-tb; rotate: none; }
+    .switch { grid-auto-flow: column; align-items: center; }
+    .sheet { top: 3.5rem; }
+    .sheet--d2 .sheet__in { rotate: -3deg; translate: -0.6rem -1.4rem; }
+    .sheet--d1 .sheet__in { rotate: 2deg; translate: 0.8rem -0.6rem; }
+    .balloon--hero { right: var(--sc-gutter); top: auto; bottom: 4rem; max-width: 13rem; }
+    .methods, .results { grid-template-columns: 1fr; }
+    .methods dt, .results dt { padding-bottom: 0.2rem; border-bottom: 0; }
+    .methods dd, .results dd { padding-top: 0; }
+    .papers li { grid-template-columns: 1fr; gap: 0.2rem; }
+    .balloon--pub { display: none; }
+    .proposals li { grid-template-columns: 1fr auto; }
+    .proposals li > div { grid-column: 1 / -1; }
+    .proposals li p:not(.label):not(.status) { font-size: 0.95rem; }
+    .colophon { grid-template-columns: 1fr 1fr; }
+    .ch--colophon { padding-bottom: 4rem; }
+  }
+  @media (max-width: 860px) and (max-height: 760px) {
+    .front .abstract { display: none; }
+    .papers li { font-size: 0.95rem; }
+  }
+</style>
+<noscript><style>.rl ins { opacity: 1; } .rl del { background-size: 100% 0.08em; } [data-sc-cue] { opacity: 1; }</style></noscript>
+</head>
+<body>
+
+<div class="sc-grain" aria-hidden="true"></div>
+
+<aside class="folio" aria-label="Section and diff controls">
+  <span class="folio__num" aria-hidden="true">§1</span>
+  <span class="folio__title" aria-hidden="true">Model card</span>
+  <button class="switch" type="button" aria-pressed="true" aria-label="Show base outputs">Diff<span class="switch__track" aria-hidden="true"></span></button>
+</aside>
+
+<main>
+
+  <!-- §1 MODEL CARD: pin + parallax. Earlier checkpoints behind, an eval note in front. -->
+  <section id="ch1" class="ch ch--desk" data-sc-act="pin" data-sc-span="1.6" data-folio="§1|Model card">
+    <div data-sc-stage class="desk">
+      <div class="sheet sheet--d2" data-sc-parallax="-1.5" aria-hidden="true">
+        <div class="sheet__in"><span class="strike" style="left:3rem;top:9.6rem;width:46%"></span><span class="strike" style="left:3rem;top:14rem;width:62%"></span><span class="ckpt">ckpt-1</span></div>
+      </div>
+      <div class="sheet sheet--d1" data-sc-parallax="-0.7" aria-hidden="true">
+        <div class="sheet__in"><span class="strike" style="left:3rem;top:12.2rem;width:54%"></span><span class="ckpt">ckpt-2</span></div>
+      </div>
+      <article class="sheet sheet--front front" data-sc-parallax="0.3">
+        <div class="sheet__in">
+          <p class="label">Model card · Delhi, India · Open to AI and ML roles</p>
+          <h1 class="sc-display">Lavanya Chaudhary</h1>
+          <p class="sub rl" id="hero-rl"><del>Passionate about technology and eager to learn.</del> <ins>Builds machine learning that can explain itself.</ins></p>
+          <p class="abstract"><b>Summary.</b> Computer Science student (integrated BE + ME, Chandigarh University, 2027) working with machine learning, LLMs, RAG and explainable AI, plus the Python and SQL data work underneath.</p>
+        </div>
+      </article>
+      <aside class="balloon balloon--hero" data-sc-parallax="1.2"><b>Eval note 1</b>Struck out: the base output, generic. Written in: the fine-tuned output, what she actually built. The whole page works like this.</aside>
+    </div>
+  </section>
+
+  <!-- §2 CAPABILITIES: flow -->
+  <section id="ch2" class="ch paper ch--methods" data-sc-act="flow" data-folio="§2|Capabilities">
+    <div class="col" data-sc-in data-sc-stagger="70">
+      <p class="label">§2 Capabilities</p>
+      <h2 class="opener rl"><del>Proficient in a wide range of technologies.</del> <ins>Machine learning first. Python, SQL and the data work underneath.</ins></h2>
+      <dl class="methods">
+        <dt>AI and ML</dt><dd><span class="lead">Machine learning, deep learning, NLP, LLMs and RAG, explainable AI (XAI), prompt engineering</span></dd>
+        <dt>Data science</dt><dd>pandas, NumPy, Matplotlib, Power BI, data visualisation</dd>
+        <dt>Data engineering</dt><dd>SQL, ETL, data warehousing, data modelling, cleaning, profiling and validation</dd>
+        <dt>Languages</dt><dd>Python, Java, C++, JavaScript, R, data structures, object-oriented programming</dd>
+        <dt>Databases and tools</dt><dd>MySQL, SQLite, GitHub, Docker, VS Code, MATLAB, Google Colab</dd>
+      </dl>
+    </div>
+  </section>
+
+  <!-- §3 BUILDS: pan. The three that learn from data come first. -->
+  <section id="ch3" class="ch ch--lab" data-sc-act="pan" data-sc-span="2.6" data-folio="§3|Builds">
+    <div data-sc-stage class="lab-stage">
+      <div class="rail" data-sc-pan="0.04">
+        <div class="rail__head">
+          <p class="label">§3 Builds</p>
+          <h2 class="opener rl"><del>Worked on several projects.</del> <ins>Five builds. Three of them learn from data.</ins></h2>
+          <p class="label" style="margin-top:1.4rem">Figures are schematics, not results.</p>
+        </div>
+
+        <figure class="plate plate--ml">
+          <svg viewBox="0 0 320 190" fill="none" stroke="currentColor" stroke-width="1.6" role="img" aria-label="Three kinds of behavioural data flowing into a model that outputs trait bars with an explanation bracket">
+            <path d="M24 40h40M24 50h32M24 60h38"/><path d="M24 98c6-14 10 14 16 0s10 14 16 0 8-10 10 0"/><circle cx="28" cy="146" r="3"/><circle cx="40" cy="140" r="3"/><circle cx="52" cy="150" r="3"/><circle cx="62" cy="138" r="3"/>
+            <path d="M76 50l46 36M76 98h46M76 144l46-36" stroke-dasharray="3 4"/>
+            <rect x="124" y="70" width="64" height="50" rx="3"/>
+            <path d="M188 95h22"/>
+            <path d="M214 56h70M214 78h44M214 100h82M214 122h30M214 144h58" stroke-width="7" stroke-linecap="butt"/>
+            <path class="acc" d="M300 92v-36h8M300 100v44h8" stroke-width="1.6"/>
+          </svg>
+          <figcaption><p class="label">Fig. 1 · LLM, RAG, Python, Power BI</p><h3>Explainable Multimodal Personality Prediction</h3><p>Predicts personality traits from several kinds of behavioural data, and shows why.</p></figcaption>
+        </figure>
+
+        <figure class="plate plate--ml">
+          <svg viewBox="0 0 320 190" fill="none" stroke="currentColor" stroke-width="1.6" role="img" aria-label="A stream of transactions over time with one flagged">
+            <path d="M24 150h272"/>
+            <path d="M36 150v-26M52 150v-40M68 150v-18M84 150v-34M100 150v-22M116 150v-44M132 150v-28M148 150v-16M164 150v-36M196 150v-24M212 150v-38M228 150v-20M244 150v-30M260 150v-42M276 150v-24"/>
+            <path class="acc" d="M180 150V40" stroke-width="2.4"/><circle class="acc" cx="180" cy="32" r="10"/>
+            <path d="M24 166l10-6M286 160l10 6" stroke-width="1"/>
+          </svg>
+          <figcaption><p class="label">Fig. 2 · Machine learning, Python</p><h3>Real-Time Fraud Detection System</h3><p>Watches financial transactions as they happen and flags the fraudulent ones.</p></figcaption>
+        </figure>
+
+        <figure class="plate plate--ml">
+          <svg viewBox="0 0 320 190" fill="none" stroke="currentColor" stroke-width="1.6" role="img" aria-label="Scatter of points rising left to right with a fitted line">
+            <path d="M30 20v148h270"/>
+            <g fill="currentColor" stroke="none"><circle cx="52" cy="150" r="3"/><circle cx="66" cy="138" r="3"/><circle cx="74" cy="152" r="3"/><circle cx="90" cy="128" r="3"/><circle cx="102" cy="136" r="3"/><circle cx="114" cy="118" r="3"/><circle cx="126" cy="126" r="3"/><circle cx="138" cy="104" r="3"/><circle cx="150" cy="112" r="3"/><circle cx="162" cy="94" r="3"/><circle cx="176" cy="100" r="3"/><circle cx="188" cy="82" r="3"/><circle cx="200" cy="92" r="3"/><circle cx="214" cy="70" r="3"/><circle cx="226" cy="78" r="3"/><circle cx="240" cy="58" r="3"/><circle cx="254" cy="66" r="3"/><circle cx="268" cy="46" r="3"/><circle cx="280" cy="54" r="3"/></g>
+            <path class="acc" d="M44 152L288 44" stroke-width="2.2"/>
+          </svg>
+          <figcaption><p class="label">Fig. 3 · Machine learning</p><h3>House Price Prediction</h3><p>A regression model for housing prices.</p></figcaption>
+        </figure>
+
+        <figure class="plate">
+          <svg viewBox="0 0 320 190" fill="none" stroke="currentColor" stroke-width="1.6" role="img" aria-label="Two documents side by side with changed lines highlighted">
+            <rect x="24" y="18" width="122" height="154" rx="2"/><rect x="174" y="18" width="122" height="154" rx="2"/>
+            <path d="M40 44h80M40 60h90M40 76h70M40 92h86M40 108h60M40 124h84M40 140h72"/>
+            <path d="M190 44h80M190 60h90M190 92h86M190 124h84M190 140h72"/>
+            <rect class="accf" x="186" y="70" width="96" height="12" fill-opacity="0.22" stroke="none"/><path class="acc" d="M190 76h74"/>
+            <rect class="accf" x="186" y="102" width="80" height="12" fill-opacity="0.22" stroke="none"/><path class="acc" d="M190 108h58"/>
+            <path class="acc" d="M38 108h66" stroke-width="2.4"/>
+          </svg>
+          <figcaption><p class="label">Fig. 4 · Python</p><h3>PDF Document Comparison Tool</h3><p>Compares two PDF documents and highlights what changed.</p></figcaption>
+        </figure>
+
+        <figure class="plate">
+          <svg viewBox="0 0 320 190" fill="none" stroke="currentColor" stroke-width="1.6" role="img" aria-label="A browser window holding a grid map with some cells shaded">
+            <rect x="24" y="16" width="272" height="160" rx="3"/><path d="M24 36h272"/><circle cx="36" cy="26" r="2.5"/><circle cx="46" cy="26" r="2.5"/><circle cx="56" cy="26" r="2.5"/>
+            <path d="M44 52h232v108H44zM73 52v108M102 52v108M131 52v108M160 52v108M189 52v108M218 52v108M247 52v108M44 79h232M44 106h232M44 133h232" stroke-width="1"/>
+            <g class="accf" stroke="none"><rect x="102" y="79" width="29" height="27" fill-opacity="0.5"/><rect x="131" y="79" width="29" height="27" fill-opacity="0.8"/><rect x="131" y="106" width="29" height="27" fill-opacity="0.35"/><rect x="218" y="52" width="29" height="27" fill-opacity="0.45"/><rect x="73" y="133" width="29" height="27" fill-opacity="0.25"/></g>
+          </svg>
+          <figcaption><p class="label">Fig. 5 · HTML, CSS, JavaScript</p><h3>Crime Rate Prediction Portal</h3><p>An interactive web app for crime statistics.</p></figcaption>
+        </figure>
+
+        <p class="rail__note">One explains its own predictions. One catches fraud as it happens. One compares two documents line by line, the way this page compares a base output with a tuned one.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- §4 OUTPUT: pin, the peak. A prompt, a hush, then the biggest diff. -->
+  <section id="ch4" class="ch ch--ink" data-sc-act="pin" data-sc-span="3.2" data-folio="§4|Output">
+    <div data-sc-stage class="pub">
+      <p class="pub__hush" data-sc-cue="0.02 0.3 0.2 0.3">&gt; one more prompt</p>
+      <div class="col pub__in">
+        <p class="prompt" data-sc-cue="0.16 1 0.12 0.04"><span>&gt;</span> Describe her in two words.</p>
+        <h2 class="pub__title rl" id="peak" data-sc-cue="0.2 1 0.12 0.04"><del>Hardworking student.</del> <ins>AI builder.</ins></h2>
+        <p class="pub__sub" data-sc-cue="0.46 1 0.15 0.04">The evidence, from the work above and two of her papers.</p>
+        <ol class="papers">
+          <li data-sc-cue="0.52 1 0.14 0.04"><span class="label">Fig. 1 · LLM + RAG</span><span>Explainable Multimodal Personality Prediction</span></li>
+          <li data-sc-cue="0.6 1 0.14 0.04"><span class="label">Fig. 2 · Real-time ML</span><span>Real-Time Fraud Detection System</span></li>
+          <li data-sc-cue="0.68 1 0.14 0.04"><span class="label">Paper · LLMs</span><span>Large Language Model-Assisted Cyber Attack Detection and Automated Incident Response System</span></li>
+          <li data-sc-cue="0.76 1 0.14 0.04"><span class="label">Paper · Explainable AI</span><span>AI-Orchestrated Cognitive Cyber Defense Framework with Explainable Threat Intelligence for Edge-Enabled Intelligent Networks</span></li>
+        </ol>
+      </div>
+      <aside class="balloon balloon--pub" data-sc-cue="0.84 1 0.2 0.04"><b>Eval note 2</b>Largest change from the base output.</aside>
+    </div>
+  </section>
+
+  <!-- §5 TRAINING DATA: plain flow, so the count fires once on entry -->
+  <section id="ch5" class="ch paper sc-section" data-folio="§5|Training data">
+    <div class="col" data-sc-in data-sc-stagger="70">
+      <p class="label">§5 Training data</p>
+      <h2 class="opener rl"><del>Quick learner.</del> <ins><span class="sc-nums" data-sc-count="0 9">9</span> courses, a Diamond Badge, and four papers.</ins></h2>
+      <dl class="results">
+        <dt>Education</dt><dd>Integrated BE + ME, Computer Science Engineering, Chandigarh University, 2027</dd>
+        <dt>Infosys</dt><dd>Machine Learning · React JS</dd>
+        <dt>NPTEL</dt><dd>IoT with Edge ML · Cloud Computing · Internet of Things · Multicore Computer Architecture</dd>
+        <dt>Coursera</dt><dd>Python for Everybody · Django for Everybody · Interactivity with JavaScript and jQuery</dd>
+        <dt>Badges</dt><dd>Diamond Badge, Problem Solver, on CodeChef and LeetCode</dd>
+        <dt>More papers</dt><dd>Smart Prediction of House Cost Price Using AI and Machine Learning · A Cyber Secure Blockchain-Enabled Smart Energy Metering System with 5G/NB-IoT Connectivity for Grid Scale Deployment</dd>
+      </dl>
+    </div>
+  </section>
+
+  <!-- §6 ROADMAP: pin + reveal. Planned builds, labelled as planned. -->
+  <section id="ch6" class="ch ch--grid" data-sc-act="pin" data-sc-span="1.8" data-folio="§6|Roadmap">
+    <div data-sc-stage class="future">
+      <div class="col future__in">
+        <div data-sc-cue="0 1 0 0.04">
+          <p class="label">§6 Roadmap</p>
+          <h2 class="opener rl"><del>Eager to learn new technologies.</del> <ins>Three AI builds, next.</ins></h2>
+          <p class="label" style="margin-top:1rem">Planned, not shipped. Each one starts from work above.</p>
+        </div>
+        <ol class="proposals">
+          <li data-sc-reveal="left" data-sc-reveal-at="0.12 0.34">
+            <p class="label">Next 1 · Builds on Fig. 2</p>
+            <div><h3>Why was this flagged?</h3><p>An explainability layer for my fraud detector: every alert arrives with the features that pushed it over the line.</p><p class="label">Python · SHAP · Streamlit</p></div>
+            <p class="status">Planned</p>
+          </li>
+          <li data-sc-reveal="left" data-sc-reveal-at="0.32 0.54">
+            <p class="label">Next 2 · Builds on my papers</p>
+            <div><h3>Ask my papers</h3><p>A retrieval-augmented assistant over my four papers that answers with the exact passage it used.</p><p class="label">Python · embeddings · FAISS · LLM</p></div>
+            <p class="status">Planned</p>
+          </li>
+          <li data-sc-reveal="left" data-sc-reveal-at="0.52 0.74">
+            <p class="label">Next 3 · Builds on Fig. 4</p>
+            <div><h3>Diffs that explain themselves</h3><p>My PDF comparison tool, plus an LLM that says what changed in meaning, not just in wording.</p><p class="label">Python · LLM · prompt engineering</p></div>
+            <p class="status">Planned</p>
+          </li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- §7 CONTACT: the close. The last diff writes the call to action. -->
+  <section id="ch7" class="ch ch--colophon" data-sc-act="flow" data-folio="§7|Contact">
+    <div class="col" style="width:100%" data-sc-in>
+      <p class="label">§7 Contact</p>
+      <h2 class="closing rl" style="margin-top:1rem"><del>References available on request.</del> <ins><a href="https://www.linkedin.com/in/lavanya-chaudhary-540379247" target="_blank" rel="noopener">Say hello on LinkedIn.</a></ins></h2>
+      <div class="colophon">
+        <div><h3>Contact</h3><p><a href="https://www.linkedin.com/in/lavanya-chaudhary-540379247" target="_blank" rel="noopener">LinkedIn</a><br>CodeChef: <a href="https://www.codechef.com/users/tight_bass_37" target="_blank" rel="noopener">tight_bass_37</a></p></div>
+        <div><h3>Looking for</h3><p>AI and ML roles: machine learning, LLM and RAG systems, explainable AI.</p></div>
+        <div><h3>Also</h3><p>A 7-day NSS special camp, for teamwork and social responsibility. Competitive coding, most days.</p></div>
+        <div><h3>About this page</h3><p>Every struck line is a real <code>del</code>, every new one a real <code>ins</code>. Flip the Diff switch to read the clean version.</p></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script src="scrollcraft.js"></script>
+<script>ScrollCraft.mount(document.body);</script>
+<script>
+/* The signature: scroll turns each base output into the tuned one. Page-local;
+   the engine only supplies act progress (--sc-p) for the pinned peak. */
+(function () {
+  'use strict';
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var clamp = function (x) { return x < 0 ? 0 : x > 1 ? 1 : x; };
+  var html = document.documentElement;
+  var rls = Array.prototype.slice.call(document.querySelectorAll('.rl'));
+  var hero = document.getElementById('hero-rl'), peak = document.getElementById('peak'), pubAct = document.getElementById('ch4');
+  var chapters = Array.prototype.slice.call(document.querySelectorAll('[data-folio]'));
+  var fNum = document.querySelector('.folio__num'), fTitle = document.querySelector('.folio__title');
+  var set = function (el, v) { el.style.setProperty('--rl', v.toFixed(3)); };
+
+  function update() {
+    var vh = innerHeight || 1;
+    rls.forEach(function (el) {
+      if (el === hero) return;
+      if (reduce) return set(el, 1);
+      if (el === peak) return set(el, clamp(((parseFloat(pubAct.style.getPropertyValue('--sc-p')) || 0) - 0.24) / 0.3));
+      set(el, clamp((vh * 0.88 - el.getBoundingClientRect().top) / (vh * 0.4)));
+    });
+    var cur = chapters[0];
+    chapters.forEach(function (c) { if (c.getBoundingClientRect().top <= vh * 0.5) cur = c; });
+    var f = cur.getAttribute('data-folio').split('|');
+    if (fNum.textContent !== f[0]) { fNum.textContent = f[0]; fTitle.textContent = f[1]; }
+  }
+  var ticking = false;
+  addEventListener('scroll', function () { if (!ticking) { ticking = true; requestAnimationFrame(function () { ticking = false; update(); }); } }, { passive: true });
+  addEventListener('resize', update, { passive: true });
+  update();
+
+  // The model card tunes itself once on arrival, so the first screen is never the base output.
+  if (reduce) set(hero, 1);
+  else {
+    var t0 = performance.now() + 700;
+    (function run(now) { var p = clamp((now - t0) / 1700); set(hero, p * p * (3 - 2 * p)); if (p < 1) requestAnimationFrame(run); })(performance.now());
+  }
+
+  // One switch: show the base outputs, or read only the tuned version.
+  var sw = document.querySelector('.switch');
+  sw.addEventListener('click', function () {
+    var on = sw.getAttribute('aria-pressed') !== 'true';
+    sw.setAttribute('aria-pressed', String(on));
+    html.setAttribute('data-edits', on ? 'on' : 'off');
+  });
+
+  function relayout() { dispatchEvent(new Event('resize')); }
+  addEventListener('load', relayout);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(relayout);
+})();
+</script>
+</body>
+</html>
